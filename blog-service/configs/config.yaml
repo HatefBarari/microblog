@@ -1,0 +1,14 @@
+server:
+  port: 8002
+  mode: development
+
+mongo:
+  uri: "mongodb://localhost:27017"
+  dbname: "blogdb"
+
+log:
+  level: "debug"
+
+auth:
+  access_token: "d29eb6f8-bef0-4665-849c-fc7662bb09dd"
+  refresh_token: "32b1ebdb-9dea-40c9-9efd-7655fb26cc20"

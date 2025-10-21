@@ -1,0 +1,25 @@
+server:
+  port: 8001
+  mode: development
+  base_url: "http://localhost:8001"
+
+mongo:
+  uri: "mongodb://localhost:27017"
+  dbname: "authdb"
+
+auth:
+  access_secret: "d29eb6f8-bef0-4665-849c-fc7662bb09dd"
+  refresh_secret: "32b1ebdb-9dea-40c9-9efd-7655fb26cc20"
+  access_ttl_min: 15
+  refresh_ttl_hour: 168
+
+email:
+  from: "noreply@microblog.local"
+  smtp:
+    host: "localhost"
+    port: "1025"
+    user: ""
+    pass: ""
+
+log:
+  level: "debug"

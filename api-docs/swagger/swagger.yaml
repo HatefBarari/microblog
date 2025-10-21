@@ -1,0 +1,1197 @@
+openapi: 3.0.3
+info:
+  title: Microblog Platform API
+  description: |
+    Complete API documentation for Microblog Platform with Authentication, Blog Management, and Media Services.
+    
+    ## Services Overview
+    - **Auth Service (Port: 8081)**: User authentication, registration, and email verification
+    - **Blog Service (Port: 8082)**: Article management, categories, comments, and ratings
+    - **Media Service (Port: 8083)**: File upload, storage, and media management
+    
+    ## Authentication
+    This API uses JWT Bearer tokens for authentication. Include the token in the Authorization header:
+    ```
+    Authorization: Bearer <your-access-token>
+    ```
+    
+    ## User Roles
+    - **Guest**: Limited read access
+    - **User**: Can read and comment
+    - **Author**: Can create articles and upload media
+    - **Manager**: Can manage content and moderate
+    - **Admin**: Full access to all features
+  version: 1.0.0
+  contact:
+    name: Microblog API Support
+    email: support@microblog.com
+  license:
+    name: MIT
+    url: https://opensource.org/licenses/MIT
+
+servers:
+  - url: http://localhost:8081
+    description: Auth Service
+  - url: http://localhost:8082
+    description: Blog Service
+  - url: http://localhost:8083
+    description: Media Service
+
+security:
+  - BearerAuth: []
+
+paths:
+  # Auth Service Endpoints
+  /register:
+    post:
+      tags:
+        - Authentication
+      summary: Register new user
+      description: Register a new user account
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - email
+                - password
+              properties:
+                email:
+                  type: string
+                  format: email
+                  example: user@example.com
+                password:
+                  type: string
+                  minLength: 6
+                  example: password123
+      responses:
+        '201':
+          description: User registered successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  data:
+                    type: object
+                    properties:
+                      access_token:
+                        type: string
+                        example: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
+                      refresh_token:
+                        type: string
+                        example: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /login:
+    post:
+      tags:
+        - Authentication
+      summary: User login
+      description: Authenticate user and get tokens
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - email
+                - password
+              properties:
+                email:
+                  type: string
+                  format: email
+                  example: user@example.com
+                password:
+                  type: string
+                  example: password123
+      responses:
+        '200':
+          description: Login successful
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  data:
+                    type: object
+                    properties:
+                      access_token:
+                        type: string
+                        example: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
+                      refresh_token:
+                        type: string
+                        example: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
+        '401':
+          description: Invalid credentials
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /auth/refresh:
+    post:
+      tags:
+        - Authentication
+      summary: Refresh access token
+      description: Get new access token using refresh token
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - refresh_token
+              properties:
+                refresh_token:
+                  type: string
+                  example: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
+      responses:
+        '200':
+          description: Token refreshed successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  data:
+                    type: object
+                    properties:
+                      access_token:
+                        type: string
+                        example: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
+
+  /verify:
+    get:
+      tags:
+        - Authentication
+      summary: Verify email address
+      description: Verify user email with token
+      security: []
+      parameters:
+        - name: token
+          in: query
+          required: true
+          schema:
+            type: string
+          example: verification_token
+      responses:
+        '200':
+          description: Email verified successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  data:
+                    type: object
+                    properties:
+                      message:
+                        type: string
+                        example: email verified successfully
+
+  /forgot-password:
+    post:
+      tags:
+        - Authentication
+      summary: Send password reset email
+      description: Send password reset email to user
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - email
+              properties:
+                email:
+                  type: string
+                  format: email
+                  example: user@example.com
+      responses:
+        '200':
+          description: Password reset email sent
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  data:
+                    type: object
+                    properties:
+                      message:
+                        type: string
+                        example: password reset email sent
+
+  /reset-password:
+    post:
+      tags:
+        - Authentication
+      summary: Reset password
+      description: Reset user password with token
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - token
+                - new_password
+              properties:
+                token:
+                  type: string
+                  example: reset_token
+                new_password:
+                  type: string
+                  minLength: 6
+                  example: newpassword123
+      responses:
+        '200':
+          description: Password reset successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  data:
+                    type: object
+                    properties:
+                      message:
+                        type: string
+                        example: password reset successfully
+
+  /api/v1/resend-verification:
+    post:
+      tags:
+        - Authentication
+      summary: Resend verification email
+      description: Resend verification email to authenticated user
+      responses:
+        '200':
+          description: Verification email sent
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  data:
+                    type: object
+                    properties:
+                      message:
+                        type: string
+                        example: verification email sent
+
+  /api/v1/me:
+    get:
+      tags:
+        - Authentication
+      summary: Get current user
+      description: Get current authenticated user information
+      responses:
+        '200':
+          description: User information retrieved
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  data:
+                    type: object
+                    properties:
+                      userID:
+                        type: string
+                        example: user123
+
+  # Blog Service Endpoints
+  /api/v1/articles:
+    post:
+      tags:
+        - Articles
+      summary: Create new article
+      description: Create a new article (requires authentication)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateArticleRequest'
+      responses:
+        '201':
+          description: Article created successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  data:
+                    $ref: '#/components/schemas/Article'
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+    get:
+      tags:
+        - Articles
+      summary: List articles
+      description: Get list of articles with pagination and filters
+      security: []
+      parameters:
+        - name: page
+          in: query
+          schema:
+            type: integer
+            minimum: 1
+            default: 1
+        - name: page_size
+          in: query
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 100
+            default: 10
+        - name: category_id
+          in: query
+          schema:
+            type: string
+        - name: status
+          in: query
+          schema:
+            type: string
+            enum: [draft, pending, approved, rejected, archived]
+        - name: tag
+          in: query
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Articles retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  data:
+                    type: object
+                    properties:
+                      list:
+                        type: array
+                        items:
+                          $ref: '#/components/schemas/Article'
+                      total:
+                        type: integer
+                        example: 25
+
+  /api/v1/articles/{slug}:
+    get:
+      tags:
+        - Articles
+      summary: Get article by slug
+      description: Get article details by slug
+      security: []
+      parameters:
+        - name: slug
+          in: path
+          required: true
+          schema:
+            type: string
+          example: my-first-article
+      responses:
+        '200':
+          description: Article retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  data:
+                    $ref: '#/components/schemas/Article'
+        '404':
+          description: Article not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /api/v1/articles/{id}:
+    put:
+      tags:
+        - Articles
+      summary: Update article
+      description: Update an existing article (only by author)
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+          example: article123
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateArticleRequest'
+      responses:
+        '200':
+          description: Article updated successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  data:
+                    $ref: '#/components/schemas/Article'
+        '403':
+          description: Forbidden - not the author
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: Article not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+    delete:
+      tags:
+        - Articles
+      summary: Delete article
+      description: Delete an article (only by author)
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+          example: article123
+      responses:
+        '204':
+          description: Article deleted successfully
+        '403':
+          description: Forbidden - not the author
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: Article not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /api/v1/categories/tree:
+    get:
+      tags:
+        - Categories
+      summary: Get category tree
+      description: Get hierarchical category tree
+      security: []
+      responses:
+        '200':
+          description: Category tree retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Category'
+
+  /api/v1/categories:
+    post:
+      tags:
+        - Categories
+      summary: Create category
+      description: Create a new category (admin/manager only)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - name
+              properties:
+                name:
+                  type: string
+                  minLength: 2
+                  example: Technology
+                parent_id:
+                  type: string
+                  example: cat123
+      responses:
+        '201':
+          description: Category created successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  data:
+                    $ref: '#/components/schemas/Category'
+        '403':
+          description: Forbidden - insufficient permissions
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /api/v1/articles/{id}/comments:
+    get:
+      tags:
+        - Comments
+      summary: Get article comments
+      description: Get comments for an article
+      security: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+          example: article123
+      responses:
+        '200':
+          description: Comments retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Comment'
+
+    post:
+      tags:
+        - Comments
+      summary: Create comment
+      description: Create a new comment on an article
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+          example: article123
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - content
+              properties:
+                content:
+                  type: string
+                  minLength: 2
+                  example: Great article!
+                parent_id:
+                  type: string
+                  example: comment123
+      responses:
+        '201':
+          description: Comment created successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  data:
+                    $ref: '#/components/schemas/Comment'
+
+  /api/v1/comments/{id}/status:
+    put:
+      tags:
+        - Comments
+      summary: Update comment status
+      description: Approve or reject a comment (admin/manager only)
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+          example: comment123
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - status
+              properties:
+                status:
+                  type: string
+                  enum: [approved, rejected]
+                  example: approved
+      responses:
+        '200':
+          description: Comment status updated successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  data:
+                    type: object
+                    properties:
+                      message:
+                        type: string
+                        example: updated
+        '403':
+          description: Forbidden - insufficient permissions
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /api/v1/articles/{id}/rate:
+    post:
+      tags:
+        - Ratings
+      summary: Rate article
+      description: Rate an article (1-5 stars)
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+          example: article123
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - stars
+              properties:
+                stars:
+                  type: integer
+                  minimum: 1
+                  maximum: 5
+                  example: 5
+      responses:
+        '201':
+          description: Article rated successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  data:
+                    type: object
+                    properties:
+                      message:
+                        type: string
+                        example: rated
+
+    delete:
+      tags:
+        - Ratings
+      summary: Delete article rating
+      description: Remove rating from an article
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+          example: article123
+      responses:
+        '204':
+          description: Rating deleted successfully
+
+  # Media Service Endpoints
+  /api/v1/media/upload:
+    post:
+      tags:
+        - Media
+      summary: Upload media file
+      description: Upload a media file (admin/manager/author only)
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              required:
+                - file
+              properties:
+                file:
+                  type: string
+                  format: binary
+      responses:
+        '201':
+          description: File uploaded successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  data:
+                    type: object
+                    properties:
+                      media:
+                        $ref: '#/components/schemas/Media'
+                      url:
+                        type: string
+                        example: http://localhost:8083/uploads/image.jpg
+        '403':
+          description: Forbidden - insufficient permissions
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '400':
+          description: Bad request - invalid file
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /api/v1/media/{id}:
+    get:
+      tags:
+        - Media
+      summary: Get media info
+      description: Get media file information by ID
+      security: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+          example: media123
+      responses:
+        '200':
+          description: Media info retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  data:
+                    $ref: '#/components/schemas/Media'
+        '404':
+          description: Media not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+    delete:
+      tags:
+        - Media
+      summary: Delete media
+      description: Delete a media file (only by uploader)
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+          example: media123
+      responses:
+        '204':
+          description: Media deleted successfully
+        '403':
+          description: Forbidden - not the uploader
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: Media not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /api/v1/media:
+    get:
+      tags:
+        - Media
+      summary: List user media
+      description: Get list of user's media files
+      parameters:
+        - name: page
+          in: query
+          schema:
+            type: integer
+            minimum: 1
+            default: 1
+        - name: page_size
+          in: query
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 100
+            default: 20
+      responses:
+        '200':
+          description: Media list retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  data:
+                    type: object
+                    properties:
+                      media:
+                        type: array
+                        items:
+                          $ref: '#/components/schemas/Media'
+                      total:
+                        type: integer
+                        example: 10
+                      page:
+                        type: integer
+                        example: 1
+                      size:
+                        type: integer
+                        example: 10
+
+  /media/{filename}:
+    get:
+      tags:
+        - Media
+      summary: Serve media file
+      description: Serve media file directly
+      security: []
+      parameters:
+        - name: filename
+          in: path
+          required: true
+          schema:
+            type: string
+          example: image.jpg
+      responses:
+        '302':
+          description: Redirect to file URL
+        '404':
+          description: File not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+components:
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+  schemas:
+    Error:
+      type: object
+      properties:
+        success:
+          type: boolean
+          example: false
+        error:
+          type: object
+          properties:
+            code:
+              type: integer
+              example: 400
+            message:
+              type: string
+              example: Bad request
+            details:
+              type: string
+              example: Validation failed
+
+    CreateArticleRequest:
+      type: object
+      required:
+        - title
+        - content
+        - summary
+        - category_id
+      properties:
+        title:
+          type: string
+          minLength: 3
+          example: My First Article
+        content:
+          type: string
+          minLength: 10
+          example: This is the content of my article...
+        summary:
+          type: string
+          minLength: 10
+          example: A brief summary of the article
+        category_id:
+          type: string
+          example: cat123
+        tags:
+          type: array
+          items:
+            type: string
+          example: ["technology", "programming"]
+        cover_url:
+          type: string
+          format: uri
+          example: http://localhost:8083/uploads/cover.jpg
+
+    Article:
+      type: object
+      properties:
+        id:
+          type: string
+          example: article123
+        author_id:
+          type: string
+          example: user123
+        title:
+          type: string
+          example: My First Article
+        slug:
+          type: string
+          example: my-first-article
+        summary:
+          type: string
+          example: A brief summary of the article
+        content:
+          type: string
+          example: This is the content of my article...
+        cover_url:
+          type: string
+          example: http://localhost:8083/uploads/cover.jpg
+        status:
+          type: string
+          enum: [draft, pending, approved, rejected, archived]
+          example: draft
+        category_id:
+          type: string
+          example: cat123
+        tags:
+          type: array
+          items:
+            type: string
+          example: ["technology", "programming"]
+        view_count:
+          type: integer
+          example: 15
+        rating_avg:
+          type: number
+          format: float
+          example: 4.5
+        created_at:
+          type: string
+          format: date-time
+          example: "2024-01-01T00:00:00Z"
+        updated_at:
+          type: string
+          format: date-time
+          example: "2024-01-01T12:00:00Z"
+        published_at:
+          type: string
+          format: date-time
+          example: "2024-01-01T12:00:00Z"
+
+    Category:
+      type: object
+      properties:
+        id:
+          type: string
+          example: cat123
+        name:
+          type: string
+          example: Technology
+        slug:
+          type: string
+          example: technology
+        parent_id:
+          type: string
+          example: cat456
+        children:
+          type: array
+          items:
+            $ref: '#/components/schemas/Category'
+
+    Comment:
+      type: object
+      properties:
+        id:
+          type: string
+          example: comment123
+        article_id:
+          type: string
+          example: article123
+        parent_id:
+          type: string
+          example: comment456
+        author_id:
+          type: string
+          example: user123
+        content:
+          type: string
+          example: Great article!
+        status:
+          type: string
+          enum: [pending, approved, rejected]
+          example: pending
+        created_at:
+          type: string
+          format: date-time
+          example: "2024-01-01T00:00:00Z"
+
+    Media:
+      type: object
+      properties:
+        id:
+          type: string
+          example: media123
+        uploader_id:
+          type: string
+          example: user123
+        filename:
+          type: string
+          example: image.jpg
+        original_name:
+          type: string
+          example: my-image.jpg
+        mime_type:
+          type: string
+          example: image/jpeg
+        size:
+          type: integer
+          example: 1024000
+        type:
+          type: string
+          enum: [image, video, audio, document]
+          example: image
+        status:
+          type: string
+          enum: [pending, processed, failed, deleted]
+          example: processed
+        url:
+          type: string
+          format: uri
+          example: http://localhost:8083/uploads/image.jpg
+        thumbnail_url:
+          type: string
+          format: uri
+          example: http://localhost:8083/uploads/thumb_image.jpg
+        metadata:
+          type: object
+          additionalProperties: true
+        created_at:
+          type: string
+          format: date-time
+          example: "2024-01-01T00:00:00Z"
+        updated_at:
+          type: string
+          format: date-time
+          example: "2024-01-01T12:00:00Z"
+
+tags:
+  - name: Authentication
+    description: User authentication and management
+  - name: Articles
+    description: Article management operations
+  - name: Categories
+    description: Category management operations
+  - name: Comments
+    description: Comment management operations
+  - name: Ratings
+    description: Rating management operations
+  - name: Media
+    description: Media file management operations

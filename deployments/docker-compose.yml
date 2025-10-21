@@ -1,0 +1,21 @@
+version: "3.9"
+services:
+  mongo:
+    image: mongo:7
+    restart: always
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: root
+      MONGO_INITDB_ROOT_PASSWORD: rootpass
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongo_data:/data/db
+
+  mailhog:
+    image: mailhog/mailhog:latest
+    ports:
+      - "1025:1025" # smtp
+      - "8025:8025" # web ui
+
+volumes:
+  mongo_data:

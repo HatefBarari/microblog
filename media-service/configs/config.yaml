@@ -1,0 +1,26 @@
+server:
+  port: "8083"
+  host: "0.0.0.0"
+
+database:
+  uri: "mongodb://root:rootpass@localhost:27017"
+  database: "microblog_media"
+
+storage:
+  type: "file"
+  base_path: "./uploads"
+  base_url: "http://localhost:8083"
+
+media:
+  max_file_size: 10485760  # 10MB
+  allowed_types:
+    - "image/jpeg"
+    - "image/png"
+    - "image/gif"
+    - "image/webp"
+    - "image/bmp"
+  thumbnail_size: 300
+
+log:
+  level: "info"
+  file: "logs/media.log"

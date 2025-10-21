@@ -1,0 +1,892 @@
+{
+  "info": {
+    "name": "Microblog API",
+    "description": "Complete API collection for Microblog Platform with Auth, Blog, and Media services",
+    "version": "1.0.0",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "auth_base_url",
+      "value": "http://localhost:8081",
+      "type": "string"
+    },
+    {
+      "key": "blog_base_url", 
+      "value": "http://localhost:8082",
+      "type": "string"
+    },
+    {
+      "key": "media_base_url",
+      "value": "http://localhost:8083",
+      "type": "string"
+    },
+    {
+      "key": "access_token",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "refresh_token",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "user_id",
+      "value": "",
+      "type": "string"
+    }
+  ],
+  "item": [
+    {
+      "name": "Auth Service",
+      "description": "Authentication and user management endpoints",
+      "item": [
+        {
+          "name": "Public Endpoints",
+          "item": [
+            {
+              "name": "Register User",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"email\": \"user@example.com\",\n  \"password\": \"password123\"\n}"
+                },
+                "url": {
+                  "raw": "{{auth_base_url}}/register",
+                  "host": ["{{auth_base_url}}"],
+                  "path": ["register"]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Login User",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"email\": \"user@example.com\",\n  \"password\": \"password123\"\n}"
+                },
+                "url": {
+                  "raw": "{{auth_base_url}}/login",
+                  "host": ["{{auth_base_url}}"],
+                  "path": ["login"]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Refresh Token",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"refresh_token\": \"{{refresh_token}}\"\n}"
+                },
+                "url": {
+                  "raw": "{{auth_base_url}}/auth/refresh",
+                  "host": ["{{auth_base_url}}"],
+                  "path": ["auth", "refresh"]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Verify Email",
+              "request": {
+                "method": "GET",
+                "url": {
+                  "raw": "{{auth_base_url}}/verify?token=verification_token",
+                  "host": ["{{auth_base_url}}"],
+                  "path": ["verify"],
+                  "query": [
+                    {
+                      "key": "token",
+                      "value": "verification_token"
+                    }
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Forgot Password",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"email\": \"user@example.com\"\n}"
+                },
+                "url": {
+                  "raw": "{{auth_base_url}}/forgot-password",
+                  "host": ["{{auth_base_url}}"],
+                  "path": ["forgot-password"]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Reset Password",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"token\": \"reset_token\",\n  \"new_password\": \"newpassword123\"\n}"
+                },
+                "url": {
+                  "raw": "{{auth_base_url}}/reset-password",
+                  "host": ["{{auth_base_url}}"],
+                  "path": ["reset-password"]
+                }
+              },
+              "response": []
+            }
+          ]
+        },
+        {
+          "name": "Protected Endpoints",
+          "item": [
+            {
+              "name": "Resend Verification Email",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{access_token}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{auth_base_url}}/api/v1/resend-verification",
+                  "host": ["{{auth_base_url}}"],
+                  "path": ["api", "v1", "resend-verification"]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Get Current User",
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{access_token}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{auth_base_url}}/api/v1/me",
+                  "host": ["{{auth_base_url}}"],
+                  "path": ["api", "v1", "me"]
+                }
+              },
+              "response": []
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Blog Service",
+      "description": "Article management, categories, comments, and ratings",
+      "item": [
+        {
+          "name": "Articles",
+          "item": [
+            {
+              "name": "Create Article",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{access_token}}"
+                  },
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"title\": \"My First Article\",\n  \"content\": \"This is the content of my article. It should be at least 10 characters long.\",\n  \"summary\": \"A brief summary of the article content.\",\n  \"category_id\": \"cat123\",\n  \"tags\": [\"technology\", \"programming\"],\n  \"cover_url\": \"http://localhost:8083/uploads/image.jpg\"\n}"
+                },
+                "url": {
+                  "raw": "{{blog_base_url}}/api/v1/articles",
+                  "host": ["{{blog_base_url}}"],
+                  "path": ["api", "v1", "articles"]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Get Article by Slug",
+              "request": {
+                "method": "GET",
+                "url": {
+                  "raw": "{{blog_base_url}}/api/v1/articles/my-first-article",
+                  "host": ["{{blog_base_url}}"],
+                  "path": ["api", "v1", "articles", "my-first-article"]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "List Articles",
+              "request": {
+                "method": "GET",
+                "url": {
+                  "raw": "{{blog_base_url}}/api/v1/articles?page=1&page_size=10&status=approved",
+                  "host": ["{{blog_base_url}}"],
+                  "path": ["api", "v1", "articles"],
+                  "query": [
+                    {
+                      "key": "page",
+                      "value": "1"
+                    },
+                    {
+                      "key": "page_size",
+                      "value": "10"
+                    },
+                    {
+                      "key": "status",
+                      "value": "approved"
+                    }
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Update Article",
+              "request": {
+                "method": "PUT",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{access_token}}"
+                  },
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"title\": \"Updated Article Title\",\n  \"content\": \"Updated content of the article.\",\n  \"summary\": \"Updated summary of the article.\",\n  \"category_id\": \"cat456\",\n  \"tags\": [\"updated\", \"technology\"]\n}"
+                },
+                "url": {
+                  "raw": "{{blog_base_url}}/api/v1/articles/article_id",
+                  "host": ["{{blog_base_url}}"],
+                  "path": ["api", "v1", "articles", "article_id"]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Delete Article",
+              "request": {
+                "method": "DELETE",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{access_token}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{blog_base_url}}/api/v1/articles/article_id",
+                  "host": ["{{blog_base_url}}"],
+                  "path": ["api", "v1", "articles", "article_id"]
+                }
+              },
+              "response": []
+            }
+          ]
+        },
+        {
+          "name": "Categories",
+          "item": [
+            {
+              "name": "Get Category Tree",
+              "request": {
+                "method": "GET",
+                "url": {
+                  "raw": "{{blog_base_url}}/api/v1/categories/tree",
+                  "host": ["{{blog_base_url}}"],
+                  "path": ["api", "v1", "categories", "tree"]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Create Category",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{access_token}}"
+                  },
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"name\": \"Technology\",\n  \"parent_id\": \"\"\n}"
+                },
+                "url": {
+                  "raw": "{{blog_base_url}}/api/v1/categories",
+                  "host": ["{{blog_base_url}}"],
+                  "path": ["api", "v1", "categories"]
+                }
+              },
+              "response": []
+            }
+          ]
+        },
+        {
+          "name": "Comments",
+          "item": [
+            {
+              "name": "Get Article Comments",
+              "request": {
+                "method": "GET",
+                "url": {
+                  "raw": "{{blog_base_url}}/api/v1/articles/article_id/comments",
+                  "host": ["{{blog_base_url}}"],
+                  "path": ["api", "v1", "articles", "article_id", "comments"]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Create Comment",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{access_token}}"
+                  },
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"content\": \"Great article! Thanks for sharing.\",\n  \"parent_id\": \"\"\n}"
+                },
+                "url": {
+                  "raw": "{{blog_base_url}}/api/v1/articles/article_id/comments",
+                  "host": ["{{blog_base_url}}"],
+                  "path": ["api", "v1", "articles", "article_id", "comments"]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Update Comment Status",
+              "request": {
+                "method": "PUT",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{access_token}}"
+                  },
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"status\": \"approved\"\n}"
+                },
+                "url": {
+                  "raw": "{{blog_base_url}}/api/v1/comments/comment_id/status",
+                  "host": ["{{blog_base_url}}"],
+                  "path": ["api", "v1", "comments", "comment_id", "status"]
+                }
+              },
+              "response": []
+            }
+          ]
+        },
+        {
+          "name": "Ratings",
+          "item": [
+            {
+              "name": "Rate Article",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{access_token}}"
+                  },
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"stars\": 5\n}"
+                },
+                "url": {
+                  "raw": "{{blog_base_url}}/api/v1/articles/article_id/rate",
+                  "host": ["{{blog_base_url}}"],
+                  "path": ["api", "v1", "articles", "article_id", "rate"]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Delete Article Rating",
+              "request": {
+                "method": "DELETE",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{access_token}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{blog_base_url}}/api/v1/articles/article_id/rate",
+                  "host": ["{{blog_base_url}}"],
+                  "path": ["api", "v1", "articles", "article_id", "rate"]
+                }
+              },
+              "response": []
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Media Service",
+      "description": "File upload, storage, and media management",
+      "item": [
+        {
+          "name": "Upload",
+          "item": [
+            {
+              "name": "Upload Media File",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{access_token}}"
+                  }
+                ],
+                "body": {
+                  "mode": "formdata",
+                  "formdata": [
+                    {
+                      "key": "file",
+                      "type": "file",
+                      "src": []
+                    }
+                  ]
+                },
+                "url": {
+                  "raw": "{{media_base_url}}/api/v1/media/upload",
+                  "host": ["{{media_base_url}}"],
+                  "path": ["api", "v1", "media", "upload"]
+                }
+              },
+              "response": []
+            }
+          ]
+        },
+        {
+          "name": "Management",
+          "item": [
+            {
+              "name": "Get Media Info",
+              "request": {
+                "method": "GET",
+                "url": {
+                  "raw": "{{media_base_url}}/api/v1/media/media_id",
+                  "host": ["{{media_base_url}}"],
+                  "path": ["api", "v1", "media", "media_id"]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "List User Media",
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{access_token}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{media_base_url}}/api/v1/media?page=1&page_size=20",
+                  "host": ["{{media_base_url}}"],
+                  "path": ["api", "v1", "media"],
+                  "query": [
+                    {
+                      "key": "page",
+                      "value": "1"
+                    },
+                    {
+                      "key": "page_size",
+                      "value": "20"
+                    }
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Delete Media",
+              "request": {
+                "method": "DELETE",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{access_token}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{media_base_url}}/api/v1/media/media_id",
+                  "host": ["{{media_base_url}}"],
+                  "path": ["api", "v1", "media", "media_id"]
+                }
+              },
+              "response": []
+            }
+          ]
+        },
+        {
+          "name": "Serving",
+          "item": [
+            {
+              "name": "Serve Media File",
+              "request": {
+                "method": "GET",
+                "url": {
+                  "raw": "{{media_base_url}}/media/filename.jpg",
+                  "host": ["{{media_base_url}}"],
+                  "path": ["media", "filename.jpg"]
+                }
+              },
+              "response": []
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Complete Workflow Examples",
+      "description": "Step-by-step examples of common workflows",
+      "item": [
+        {
+          "name": "User Registration Flow",
+          "item": [
+            {
+              "name": "1. Register User",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"email\": \"newuser@example.com\",\n  \"password\": \"password123\"\n}"
+                },
+                "url": {
+                  "raw": "{{auth_base_url}}/register",
+                  "host": ["{{auth_base_url}}"],
+                  "path": ["register"]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "2. Verify Email (Click link in email)",
+              "request": {
+                "method": "GET",
+                "url": {
+                  "raw": "{{auth_base_url}}/verify?token=verification_token_from_email",
+                  "host": ["{{auth_base_url}}"],
+                  "path": ["verify"],
+                  "query": [
+                    {
+                      "key": "token",
+                      "value": "verification_token_from_email"
+                    }
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "3. Login User",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"email\": \"newuser@example.com\",\n  \"password\": \"password123\"\n}"
+                },
+                "url": {
+                  "raw": "{{auth_base_url}}/login",
+                  "host": ["{{auth_base_url}}"],
+                  "path": ["login"]
+                }
+              },
+              "response": []
+            }
+          ]
+        },
+        {
+          "name": "Content Creation Flow",
+          "item": [
+            {
+              "name": "1. Upload Media",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{access_token}}"
+                  }
+                ],
+                "body": {
+                  "mode": "formdata",
+                  "formdata": [
+                    {
+                      "key": "file",
+                      "type": "file",
+                      "src": []
+                    }
+                  ]
+                },
+                "url": {
+                  "raw": "{{media_base_url}}/api/v1/media/upload",
+                  "host": ["{{media_base_url}}"],
+                  "path": ["api", "v1", "media", "upload"]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "2. Create Article",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{access_token}}"
+                  },
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"title\": \"My First Article\",\n  \"content\": \"This is the content of my article. It should be at least 10 characters long to meet the validation requirements.\",\n  \"summary\": \"A brief summary of the article content that explains what the article is about.\",\n  \"category_id\": \"cat123\",\n  \"tags\": [\"technology\", \"programming\", \"tutorial\"],\n  \"cover_url\": \"http://localhost:8083/uploads/cover-image.jpg\"\n}"
+                },
+                "url": {
+                  "raw": "{{blog_base_url}}/api/v1/articles",
+                  "host": ["{{blog_base_url}}"],
+                  "path": ["api", "v1", "articles"]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "3. Get Article",
+              "request": {
+                "method": "GET",
+                "url": {
+                  "raw": "{{blog_base_url}}/api/v1/articles/my-first-article",
+                  "host": ["{{blog_base_url}}"],
+                  "path": ["api", "v1", "articles", "my-first-article"]
+                }
+              },
+              "response": []
+            }
+          ]
+        },
+        {
+          "name": "Comment and Rating Flow",
+          "item": [
+            {
+              "name": "1. Add Comment",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{access_token}}"
+                  },
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"content\": \"This is a great article! Thanks for sharing your knowledge.\"\n}"
+                },
+                "url": {
+                  "raw": "{{blog_base_url}}/api/v1/articles/article_id/comments",
+                  "host": ["{{blog_base_url}}"],
+                  "path": ["api", "v1", "articles", "article_id", "comments"]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "2. Rate Article",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{access_token}}"
+                  },
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"stars\": 5\n}"
+                },
+                "url": {
+                  "raw": "{{blog_base_url}}/api/v1/articles/article_id/rate",
+                  "host": ["{{blog_base_url}}"],
+                  "path": ["api", "v1", "articles", "article_id", "rate"]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "3. Get Article Comments",
+              "request": {
+                "method": "GET",
+                "url": {
+                  "raw": "{{blog_base_url}}/api/v1/articles/article_id/comments",
+                  "host": ["{{blog_base_url}}"],
+                  "path": ["api", "v1", "articles", "article_id", "comments"]
+                }
+              },
+              "response": []
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "event": [
+    {
+      "listen": "prerequest",
+      "script": {
+        "type": "text/javascript",
+        "exec": [
+          "// Auto-extract tokens from login response",
+          "if (pm.response && pm.response.json && pm.response.json.data) {",
+          "    const data = pm.response.json.data;",
+          "    if (data.access_token) {",
+          "        pm.collectionVariables.set('access_token', data.access_token);",
+          "    }",
+          "    if (data.refresh_token) {",
+          "        pm.collectionVariables.set('refresh_token', data.refresh_token);",
+          "    }",
+          "    if (data.userID) {",
+          "        pm.collectionVariables.set('user_id', data.userID);",
+          "    }",
+          "}"
+        ]
+      }
+    },
+    {
+      "listen": "test",
+      "script": {
+        "type": "text/javascript",
+        "exec": [
+          "// Auto-extract tokens from login response",
+          "if (pm.response && pm.response.json && pm.response.json.data) {",
+          "    const data = pm.response.json.data;",
+          "    if (data.access_token) {",
+          "        pm.collectionVariables.set('access_token', data.access_token);",
+          "        console.log('Access token saved:', data.access_token);",
+          "    }",
+          "    if (data.refresh_token) {",
+          "        pm.collectionVariables.set('refresh_token', data.refresh_token);",
+          "        console.log('Refresh token saved:', data.refresh_token);",
+          "    }",
+          "    if (data.userID) {",
+          "        pm.collectionVariables.set('user_id', data.userID);",
+          "        console.log('User ID saved:', data.userID);",
+          "    }",
+          "}",
+          "",
+          "// Test response status",
+          "pm.test('Status code is successful', function () {",
+          "    pm.expect(pm.response.code).to.be.oneOf([200, 201, 204]);",
+          "});",
+          "",
+          "// Test response format",
+          "pm.test('Response has success field', function () {",
+          "    const jsonData = pm.response.json();",
+          "    pm.expect(jsonData).to.have.property('success');",
+          "});"
+        ]
+      }
+    }
+  ]
+}

@@ -1,0 +1,42 @@
+{
+  "name": "microblog-api-docs",
+  "version": "1.0.0",
+  "description": "API Documentation for Microblog Platform",
+  "main": "swagger.yaml",
+  "scripts": {
+    "docs:swagger": "swagger-ui-serve swagger.yaml",
+    "docs:redoc": "redoc-cli serve swagger.yaml",
+    "docs:build": "redoc-cli build swagger.yaml --output docs.html",
+    "docs:validate": "swagger-codegen validate -i swagger.yaml",
+    "docs:generate": "swagger-codegen generate -i swagger.yaml -l html2 -o ./generated-docs",
+    "serve": "http-server . -p 8080 -o",
+    "start": "npm run serve"
+  },
+  "keywords": [
+    "api",
+    "documentation",
+    "swagger",
+    "openapi",
+    "microblog",
+    "rest"
+  ],
+  "author": "Microblog Team",
+  "license": "MIT",
+  "devDependencies": {
+    "http-server": "^14.1.1",
+    "redoc-cli": "^0.13.21",
+    "swagger-codegen": "^3.0.0",
+    "swagger-ui-serve": "^0.1.0"
+  },
+  "engines": {
+    "node": ">=14.0.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/your-org/microblog.git"
+  },
+  "bugs": {
+    "url": "https://github.com/your-org/microblog/issues"
+  },
+  "homepage": "https://github.com/your-org/microblog#readme"
+}
