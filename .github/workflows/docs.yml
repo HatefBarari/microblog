@@ -1,0 +1,39 @@
+name: Deploy Documentation
+
+on:
+  push:
+    branches: [ main ]
+    paths:
+      - 'api-docs/**'
+      - '.github/workflows/docs.yml'
+
+jobs:
+  deploy-docs:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Set up Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '18'
+        cache: 'npm'
+        cache-dependency-path: api-docs/web-interfaces/package.json
+    
+    - name: Install dependencies
+      run: |
+        cd api-docs/web-interfaces
+        npm install
+    
+    - name: Build Swagger UI
+      run: |
+        cd api-docs/web-interfaces
+        npm run docs:build
+    
+    - name: Deploy to GitHub Pages
+      uses: peaceiris/actions-gh-pages@v3
+      with:
+        github_token: ${{ secrets.GITHUB_TOKEN }}
+        publish_dir: api-docs/
+        destination_dir: docs
